@@ -1,7 +1,7 @@
 image:
   repository: europe-west1-docker.pkg.dev/videorank-mlops-werpo78/videorank/videorank-api
   tag: manual-2f38e4f
-  digest: sha256:7483cc472254315575b028e8b049d95abd187eb39f3144445708d87de3a34d80
+  digest: sha256:91ebd63e66876f8525850b34011ac68ee3ad1a8cab0091cc7adc26f4e6fe60ef
   pullPolicy: IfNotPresent
 
 env:
