@@ -7,7 +7,7 @@ spec:
   dependsOn:
     - name: namespaces
   interval: 5m
-  path: ./apps/videorank-api/dev
+  path: ./apps/videorank-api/overlays/dev
   prune: true
   sourceRef:
     kind: GitRepository

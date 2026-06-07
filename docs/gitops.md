@@ -25,8 +25,26 @@ promotion. This keeps permissions and responsibilities clean:
 
 ## Promotion
 
-The app repo CI updates `apps/videorank-api/dev/values.yaml` with an immutable
-image digest. Merging that change promotes the application.
+The app repo CI updates
+`apps/videorank-api/overlays/dev/values.yaml` with an immutable image digest.
+Merging that change promotes the application.
+
+## Kustomize Layout
+
+The API follows the base + overlay pattern:
+
+- `apps/videorank-api/base`: reusable `HelmRelease` contract.
+- `apps/videorank-api/overlays/dev`: dev namespace, labels, annotations,
+  generated values `ConfigMap` and environment patch.
+
+The values `ConfigMap` keeps Kustomize's default name suffix hash. The
+`base/kustomizeconfig.yaml` file teaches Kustomize that
+`HelmRelease.spec.valuesFrom[].name` references a `ConfigMap`, so the generated
+hash is propagated into the `HelmRelease`. This avoids disabling the hash while
+still letting Flux notice values changes cleanly.
+
+We do not use `namePrefix` for this release because the environment is isolated
+by namespace and Flux health checks expect a stable `HelmRelease` name.
 
 ## Rollback
 

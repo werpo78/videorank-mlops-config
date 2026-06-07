@@ -2,9 +2,8 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: videorank-api
-  namespace: videorank-dev
 spec:
-  interval: 5m
+  interval: 10m
   chart:
     spec:
       chart: ./apps/videorank-api/chart
@@ -18,8 +17,7 @@ spec:
       valuesKey: values.yaml
   install:
     remediation:
-      retries: 3
+      retries: 2
   upgrade:
     remediation:
-      retries: 3
-
+      retries: 2
