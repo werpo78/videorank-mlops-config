@@ -1,23 +1,26 @@
 replicaCount: 1
-
 image:
   repository: europe-west1-docker.pkg.dev/example-project/videorank/videorank-api
   tag: latest
-  digest: ""
+  digest: ''
   pullPolicy: IfNotPresent
-
 serviceAccount:
   create: true
   name: videorank-api
   annotations: {}
-
 service:
   type: ClusterIP
   port: 80
-
 env:
   VIDEORANK_ENV: dev
-
+  VIDEORANK_MODEL_PATH: src/videorank/resources/seed_model.json
+  VIDEORANK_MODEL_URI: ''
+  VIDEORANK_MODEL_VERSION: seed-local-test
+  VIDEORANK_VERTEX_MODEL_RESOURCE: ''
+  VIDEORANK_DATA_SNAPSHOT_ID: ''
+  VIDEORANK_MODEL_GIT_SHA: ''
+  VIDEORANK_MODEL_PROMOTED_AT: ''
+  VIDEORANK_MODEL_PROMOTION_REASON: ''
 resources:
   requests:
     cpu: 100m
@@ -25,7 +28,6 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
-
 probes:
   readiness:
     path: /readyz

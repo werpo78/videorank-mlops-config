@@ -3,14 +3,19 @@ image:
   tag: manual-2f38e4f
   digest: sha256:91ebd63e66876f8525850b34011ac68ee3ad1a8cab0091cc7adc26f4e6fe60ef
   pullPolicy: IfNotPresent
-
 env:
   VIDEORANK_ENV: dev
   GOOGLE_CLOUD_PROJECT: videorank-mlops-werpo78
   GCP_REGION: europe-west1
   VIDEORANK_BQ_DATASET: videorank
   VIDEORANK_MODEL_PATH: src/videorank/resources/seed_model.json
-
+  VIDEORANK_MODEL_URI: ''
+  VIDEORANK_MODEL_VERSION: seed-local-test
+  VIDEORANK_VERTEX_MODEL_RESOURCE: ''
+  VIDEORANK_DATA_SNAPSHOT_ID: ''
+  VIDEORANK_MODEL_GIT_SHA: ''
+  VIDEORANK_MODEL_PROMOTED_AT: ''
+  VIDEORANK_MODEL_PROMOTION_REASON: ''
 resources:
   requests:
     cpu: 100m

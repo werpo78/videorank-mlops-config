@@ -27,7 +27,20 @@ promotion. This keeps permissions and responsibilities clean:
 
 The app repo CI updates
 `apps/videorank-api/overlays/dev/values.yaml` with an immutable image digest.
-Merging that change promotes the application.
+Merging that change promotes the application image.
+
+Model promotion is separate from image promotion. The app repo `promote-model`
+workflow opens a PR that updates only model runtime values:
+
+- `VIDEORANK_MODEL_URI`
+- `VIDEORANK_MODEL_VERSION`
+- `VIDEORANK_VERTEX_MODEL_RESOURCE`
+- `VIDEORANK_DATA_SNAPSHOT_ID`
+- `VIDEORANK_MODEL_GIT_SHA`
+- `VIDEORANK_MODEL_PROMOTED_AT`
+
+This lets a validated Vertex AI model candidate be promoted or rolled back
+without rebuilding the serving image.
 
 ## Kustomize Layout
 
@@ -49,7 +62,7 @@ by namespace and Flux health checks expect a stable `HelmRelease` name.
 ## Rollback
 
 Revert the promotion commit in this repository. Flux will apply the previous
-image digest.
+image digest or previous model URI, depending on what was promoted.
 
 ## Security Notes
 
