@@ -1,0 +1,17 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kuberay
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: namespaces
+  interval: 10m
+  path: ./infrastructure/controllers/kuberay
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  timeout: 10m
+

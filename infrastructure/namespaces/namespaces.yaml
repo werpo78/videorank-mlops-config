@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: videorank-dev
+  labels:
+    app.kubernetes.io/part-of: videorank
+    environment: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ray-system
+  labels:
+    app.kubernetes.io/part-of: videorank
+    environment: dev
+

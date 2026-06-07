@@ -1,0 +1,17 @@
+image:
+  repository: europe-west1-docker.pkg.dev/replace-project-id/videorank/videorank-api
+  tag: latest
+  digest: ""
+  pullPolicy: IfNotPresent
+
+env:
+  VIDEORANK_ENV: dev
+  VIDEORANK_MODEL_PATH: artifacts/model/model.json
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

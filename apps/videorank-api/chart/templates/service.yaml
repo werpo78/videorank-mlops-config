@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: videorank-api
+  labels:
+    app.kubernetes.io/name: videorank-api
+    app.kubernetes.io/part-of: videorank
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app.kubernetes.io/name: videorank-api
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+

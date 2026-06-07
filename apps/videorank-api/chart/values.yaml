@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  repository: europe-west1-docker.pkg.dev/example-project/videorank/videorank-api
+  tag: latest
+  digest: ""
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: videorank-api
+  annotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+env:
+  VIDEORANK_ENV: dev
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  readiness:
+    path: /readyz
+  liveness:
+    path: /healthz

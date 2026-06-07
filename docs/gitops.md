@@ -1,0 +1,42 @@
+# GitOps Interview Notes
+
+## Core Principle
+
+Git contains the desired runtime state. Flux runs inside the cluster and pulls
+that state. If the live cluster drifts, Flux reconciles it back to Git.
+
+## Why App Repo + Config Repo
+
+The app repo owns source and artifact production. The config repo owns runtime
+promotion. This keeps permissions and responsibilities clean:
+
+- Developers can open app PRs without directly deploying to Kubernetes.
+- Platform or ML owners can review promotions in the config repo.
+- Rollback is a Git revert.
+- The cluster is not dependent on a one-shot CI job for long-term correctness.
+
+## Objects Used Here
+
+- `GitRepository`: source object created by `flux bootstrap`.
+- `Kustomization`: applies paths from this repo with dependency ordering,
+  pruning and health checks.
+- `HelmRepository`: points Flux to an external Helm chart repository.
+- `HelmRelease`: installs/upgrades a Helm chart from declared values.
+
+## Promotion
+
+The app repo CI updates `apps/videorank-api/dev/values.yaml` with an immutable
+image digest. Merging that change promotes the application.
+
+## Rollback
+
+Revert the promotion commit in this repository. Flux will apply the previous
+image digest.
+
+## Security Notes
+
+- Secrets must be SOPS-encrypted before Git.
+- Flux permissions should be constrained by namespace in multi-tenant clusters.
+- Production should require immutable image digests.
+- Manual cluster changes are temporary diagnostics, not durable fixes.
+
