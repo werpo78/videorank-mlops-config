@@ -18,6 +18,14 @@ kubectl create secret generic videorank-api-runtime \
 sops --encrypt --in-place secrets/dev/videorank-api-runtime.yaml
 ```
 
-Production answer: use GCP KMS and IAM/Workload Identity so Flux can decrypt without a static
-private key stored in the cluster.
+Production answer: use GCP KMS and IAM/Workload Identity so Flux can decrypt
+without a static private key stored in the cluster.
 
+Secret ownership model:
+
+- GitHub Actions secrets stay in `videorank-mlops-app`; the app workflow owns
+  build and promotion.
+- SOPS files stay in `videorank-mlops-config`; Flux owns Kubernetes desired
+  state.
+- Runtime cloud secrets should come from Secret Manager or a Kubernetes secret
+  controller, not from plaintext manifests.
