@@ -1,7 +1,7 @@
 image:
   repository: europe-west1-docker.pkg.dev/videorank-mlops-werpo78/videorank/videorank-api # {"$imagepolicy": "flux-system:videorank-api:name"}
-  tag: manual-2f38e4f # {"$imagepolicy": "flux-system:videorank-api:tag"}
-  digest: sha256:91ebd63e66876f8525850b34011ac68ee3ad1a8cab0091cc7adc26f4e6fe60ef # {"$imagepolicy": "flux-system:videorank-api:digest"}
+  tag: main-5-9a67722 # {"$imagepolicy": "flux-system:videorank-api:tag"}
+  digest: sha256:6ac877e1650b44dd454531246423749ff96721d287637a32e29ea2bf7278c837 # {"$imagepolicy": "flux-system:videorank-api:digest"}
   pullPolicy: IfNotPresent
 env:
   VIDEORANK_ENV: dev
