@@ -1,0 +1,32 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: videorank-api
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: videorank-api
+    app.kubernetes.io/part-of: videorank
+spec:
+  image: europe-west1-docker.pkg.dev/videorank-mlops-werpo78/videorank/videorank-api
+  interval: 10m
+  timeout: 1m
+  provider: gcp
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: videorank-api
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/name: videorank-api
+    app.kubernetes.io/part-of: videorank
+spec:
+  imageRepositoryRef:
+    name: videorank-api
+  filterTags:
+    pattern: '^main-(?P<run>[0-9]+)-[a-f0-9]{7}$'
+    extract: '$run'
+  policy:
+    numerical:
+      order: asc
+  digestReflectionPolicy: IfNotPresent

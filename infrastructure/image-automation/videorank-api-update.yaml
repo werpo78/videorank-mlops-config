@@ -1,0 +1,31 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: videorank-api
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(image): update videorank-api image
+
+        {{ range $filename, $_ := .Changed.FileChanges -}}
+        - {{ $filename }}
+        {{ end -}}
+    push:
+      branch: flux/image-updates/dev
+  update:
+    path: ./apps/videorank-api/overlays/dev
+  policySelector:
+    matchLabels:
+      app.kubernetes.io/name: videorank-api

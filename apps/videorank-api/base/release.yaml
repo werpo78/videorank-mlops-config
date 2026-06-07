@@ -4,6 +4,7 @@ metadata:
   name: videorank-api
 spec:
   interval: 10m
+  timeout: 5m
   chart:
     spec:
       chart: ./apps/videorank-api/chart
@@ -17,7 +18,12 @@ spec:
       valuesKey: values.yaml
   install:
     remediation:
-      retries: 2
+      retries: 3
   upgrade:
     remediation:
-      retries: 2
+      retries: 3
+      strategy: rollback
+      remediateLastFailure: true
+  rollback:
+    timeout: 5m
+    cleanupOnFail: false

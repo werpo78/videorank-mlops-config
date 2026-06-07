@@ -15,19 +15,111 @@ promotion. This keeps permissions and responsibilities clean:
 - Rollback is a Git revert.
 - The cluster is not dependent on a one-shot CI job for long-term correctness.
 
-## Objects Used Here
+## Flux Objects Used Here
 
 - `GitRepository`: source object created by `flux bootstrap`.
 - `Kustomization`: applies paths from this repo with dependency ordering,
-  pruning and health checks.
+  pruning, waiting and health checks.
 - `HelmRepository`: points Flux to an external Helm chart repository.
 - `HelmRelease`: installs/upgrades a Helm chart from declared values.
+- `ImageRepository`: scans Artifact Registry tags for the API image.
+- `ImagePolicy`: selects the newest sortable CI tag and reflects the digest.
+- `ImageUpdateAutomation`: writes selected image values back to Git.
+
+## Bootstrap Best Practices
+
+Before bootstrap, run `flux check --pre` against the target cluster. Bootstrap is
+idempotent, creates the Flux manifests, pushes them to Git and installs the
+controllers. This lab uses:
+
+```bash
+flux bootstrap github \
+  --owner="$GITHUB_OWNER" \
+  --repository=videorank-mlops-config \
+  --branch=main \
+  --path=clusters/dev \
+  --components-extra=image-reflector-controller,image-automation-controller \
+  --read-write-key=true \
+  --personal \
+  --private=true
+```
+
+The `--components-extra` flag is intentional: image automation controllers are
+not part of a minimal Flux install.
+
+`--read-write-key=true` is required because `ImageUpdateAutomation` pushes
+commits back to the repository. If the cluster was already bootstrapped with a
+read-only deploy key, rotate the `flux-system` Secret and rerun bootstrap.
+
+## Reconciliation Diagnostics
+
+Useful commands:
+
+```bash
+flux get all -A
+flux get kustomizations -A
+flux get helmreleases -A
+flux get image repository -A
+flux get image policy -A
+flux get image update -A
+flux reconcile source git flux-system
+flux reconcile kustomization videorank-api -n flux-system
+flux reconcile helmrelease videorank-api -n videorank-dev --reset
+flux events --for kustomization/videorank-api
+```
+
+Common failure interpretation:
+
+- `kustomization path not found`: the Flux `path` does not exist in Git.
+- `Source not ready`: debug the `GitRepository` or `HelmRepository` first.
+- `Helm upgrade failed`: inspect the `HelmRelease` events, then reset/retry.
+- `ImagePolicy` not ready: inspect `ImageRepository` auth and tag pattern.
+
+## HelmRelease Best Practices
+
+The API `HelmRelease` is declared from a chart stored in the config repo. It has:
+
+- `valuesFrom` pointing to a generated values `ConfigMap`.
+- explicit `install.remediation.retries`.
+- explicit `upgrade.remediation.retries`.
+- `strategy: rollback` and `remediateLastFailure: true`.
+- `rollback.timeout` so failed upgrades do not remain ambiguous.
+
+This is the production interview point: a HelmRelease should declare how failed
+installs/upgrades behave. Otherwise operations depend on defaults and manual
+interpretation during incidents.
+
+## Image Automation
+
+CI pushes two tags:
+
+- the full Git SHA tag for traceability.
+- `main-<run_number>-<short_sha>` for deterministic Flux selection.
+
+Flux scans the image repository with `provider: gcp`, filters only sortable
+`main-*` tags, chooses the highest run number, and writes updates to the
+`flux/image-updates/dev` branch. It does not push directly to `main`.
+
+The values file has required markers:
+
+```yaml
+repository: ... # {"$imagepolicy": "flux-system:videorank-api:name"}
+tag: ... # {"$imagepolicy": "flux-system:videorank-api:tag"}
+digest: ... # {"$imagepolicy": "flux-system:videorank-api:digest"}
+```
+
+The chart deploys by digest when `image.digest` is set. Tags are selection
+inputs; digest is the immutable runtime identity.
 
 ## Promotion
 
-The app repo CI updates
+The normal app repo CI updates
 `apps/videorank-api/overlays/dev/values.yaml` with an immutable image digest.
-Merging that change promotes the application image.
+Merging that PR promotes the application image.
+
+Flux image automation is a learning path for the interview and an optional
+staging helper: it can create an update branch from registry state, but humans
+still review the PR before merge.
 
 Model promotion is separate from image promotion. The app repo `promote-model`
 workflow opens a PR that updates only model runtime values:
@@ -70,4 +162,5 @@ image digest or previous model URI, depending on what was promoted.
 - Flux permissions should be constrained by namespace in multi-tenant clusters.
 - Production should require immutable image digests.
 - Manual cluster changes are temporary diagnostics, not durable fixes.
-
+- For private Artifact Registry, prefer GKE Workload Identity for Flux image
+  controllers instead of static registry credentials.

@@ -3,6 +3,6 @@ kind: Kustomization
 resources:
   - infrastructure/namespaces.yaml
   - infrastructure/kuberay.yaml
+  - infrastructure/image-automation.yaml
   - apps/videorank-api.yaml
   - apps/ray-training.yaml
-

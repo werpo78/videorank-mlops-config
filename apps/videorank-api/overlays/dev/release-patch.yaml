@@ -4,9 +4,3 @@ metadata:
   name: videorank-api
 spec:
   interval: 5m
-  install:
-    remediation:
-      retries: 3
-  upgrade:
-    remediation:
-      retries: 3
